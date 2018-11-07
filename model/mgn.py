@@ -90,6 +90,7 @@ class MGN(nn.Module):
             nn.Linear(128, 3 * 2)
         )
 
+        # why reduction has a nn.ReLU on the end???
         reduction = nn.Sequential(nn.Conv2d(2048, args.feats, 1, bias=False), nn.BatchNorm2d(args.feats), nn.ReLU())
 
         self._init_reduction(reduction)

@@ -46,7 +46,20 @@ class Trainer():
             labels = labels.to(self.device)
 
             self.optimizer.zero_grad()
+            # outputs in the market dataset is a tuple of 13 tensor of the following sizes:
+            # 1: 32 X 2048 (concatonated features) (used for testing)
+            # 4: 32 X 256 (used for backprop)
+            # 8: 32 X 14718 (used for backprop)
+            # this is corresponding to the sub-model outputs I know
+            # but how do the dimensions make sense???
             outputs = self.model(inputs)
+            # labels is a vector<int> of indices (shape 32 (batchsize) ?) of the images
+            # how do we get loss between outputs and labels? since the identities of the 
+            # images don't have a "ground truth" encoding in the first place...
+            # or maybe we do get encoding of a known identity and then compare
+            # what the output encoding for an image was and then tell the loss what the
+            # output encoding should have been, given the labels. If the loss knows the 
+            # ground truth encoding of the identity, then it could compare...
             loss = self.loss(outputs, labels)
             loss.backward()
             self.optimizer.step()
@@ -62,19 +75,36 @@ class Trainer():
     def test(self):
         epoch = self.scheduler.last_epoch + 1
         self.ckpt.write_log('\n[INFO] Test:')
+        # "switch modes" for the model to eval mode
+        # does this mean don't save data for backprop???
         self.model.eval()
 
+        # this will be for logging the reranking???
         self.ckpt.add_log(torch.zeros(1, 5))
+        # get the encodings/features for the query dataset
+        # the result size for example in the market query dataset
+        # is 3368 X 2048 since there are 3368 query photos
         qf = self.extract_feature(self.query_loader).numpy()
+        # get the encodings/features for the query dataset
+        # the result size for example in the market gallery dataset
+        # is 15913 X 2048 since there are 15913 gallery photos
         gf = self.extract_feature(self.test_loader).numpy()
 
         if self.args.re_rank:
+            # I don't get whats going on here -- see reranking
             q_g_dist = np.dot(qf, np.transpose(gf))
             q_q_dist = np.dot(qf, np.transpose(qf))
             g_g_dist = np.dot(gf, np.transpose(gf))
+            # dist will end up being a 2D matrix of size #query_photos X #gallery_photos
+            # in case of market, this is 3368 X 15913
+            # thus, dist[0][0] is the distance between query_photo[0] to gallery_photo[0]
             dist = re_ranking(q_g_dist, q_q_dist, g_g_dist)
         else:
+            # each image is represented by a vector of size 2048 which are its "features/encoding"
+            # distance is calculated here using euclidian distances between the cross product
+            # of each query image with each gallery image
             dist = cdist(qf, gf)
+        # what is r??? result? reranking? it is shape of 100 floats [0, 1] in the market dataset
         r = cmc(dist, self.queryset.ids, self.testset.ids, self.queryset.cameras, self.testset.cameras,
                 separate_camera_set=False,
                 single_gallery_shot=False,
@@ -129,6 +159,7 @@ class Trainer():
             ff = torch.FloatTensor(inputs.size(0), 2048).zero_()
             for i in range(2):
                 if i==1:
+                    # why ???
                     inputs = self.fliphor(inputs)
                 input_img = inputs.to(self.device)
                 outputs = self.model(input_img)

@@ -32,7 +32,10 @@ def cmc(distmat, query_ids=None, gallery_ids=None,
     gallery_ids = np.asarray(gallery_ids)
     query_cams = np.asarray(query_cams)
     gallery_cams = np.asarray(gallery_cams)
-    # Sort and find correct matches
+    # distmat is a 2D matrix of size #query_photos X #gallery_photos
+    # in case of market, this is 3368 X 15913
+    # distmat[0][0] is the distance between query_photo[0] to gallery_photo[0]
+    # indices of same shape is a sorted matrix from least 
     indices = np.argsort(distmat, axis=1)
     matches = (gallery_ids[indices] == query_ids[:, np.newaxis])
     # Compute CMC for each query
@@ -95,16 +98,48 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
     query_cams = np.asarray(query_cams)
     gallery_cams = np.asarray(gallery_cams)
     # Sort and find correct matches
+    # indices[0] is the sorted
+    # list of indices of images in the test set that are "most like"
+    # AKA least distance, from image 0 in the query set
+    # Image "0" being the image with label 0
+    # for example, on market, after one epoch, indices[0][0] = 6192
+    # Interpret that as saying image 0 in the query set corresponds
+    # best, AKA has least distance to, image 6192 in the test set
     indices = np.argsort(distmat, axis=1)
+    # the question then is, what id does test image 6192 have?
+    # to get that, we must index our gallery_ids at indices[0][0]
+    # and we find that it is id 1.
+    gallery_ids[indices][0][0]
+    # for query image 0, what are the top 10 ids we think it could be?
+    # looks like (for market), image 0 matches to id 1 pretty consistently
+    # from the test dataset
+    gallery_ids[indices][0][:10]
+    # what if we wanted to know the full list of sorted prediction for which 
+    # test-image id are predicted for each query image, not just query image 0?
+    gallery_ids[indices]
+    # query_ids[:, np.newaxis]) makes query_ids from shape (m,) -> (m, 1)
+    # this is same as doing query_ids.reshape(m,1)
+    # here we are comparing, for each query image, how many of the predictions
+    # match the 
     matches = (gallery_ids[indices] == query_ids[:, np.newaxis])
+    with open("predictions.txt", "a") as f:
+        for i in range(20):
+            f.write("{}: {}".format(i, ','.join(map(str, gallery_ids[indices][i][:10]))))
+        f.write("----------------------------")
     # Compute AP for each query
     aps = []
     for i in range(m):
         # Filter out the same id and same camera
+        # first find the entries 
         valid = ((gallery_ids[indices[i]] != query_ids[i]) |
                  (gallery_cams[indices[i]] != query_cams[i]))
+        # drop the entries in matches[i] which are the same id and same camera
+        # y_true is the ground truth
         y_true = matches[i, valid]
+        # yscore is the distance we said they were apart (normalized to [0, -1])
         y_score = -distmat[i][indices[i]][valid]
+        # ... if they were all taken on the same camera, then don't include
+        # this person in our results
         if not np.any(y_true):
             continue
         aps.append(average_precision_score(y_true, y_score))

@@ -12,7 +12,7 @@ class Args():
         self.data_test2 = 'DukeMTMC'
         self.reset = False
         self.epochs = 400
-        self.test_every = 50
+        self.test_every = 1
         self.batchid = 8
         self.batchtest = 16
         self.test_only = False
@@ -43,16 +43,19 @@ class Args():
         self.probability = 0.5
         self.savedir = 'saved_models'
         self.outdir = 'out'
-        self.resume = 0
         self.save = 'spn'
         self.save_models = True
-        self.pre_train = 'model_best.pt'
+        self.pre_train = '' #model_best.pt
         self.load = ''
         self.decay_type = 'step'
         self.extract_features_only = False
         self.batchimage = 4
         self.cpu = True
         self.use_alighed_branch = False
+        self.aligned_parts = 3
+        self.use_aligned_branch = False
+        self.resume = 0
+        self.verbose = True
 
 
 args = Args()
