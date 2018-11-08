@@ -142,8 +142,8 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
         if i < 20: # lets just look at the first 20 query pictures
             with open("predictions.txt", "a") as f:
                 # for the query picture, lets look at the id's we predicted for it!
-                f.write("({}, {}):{}\n".format(
-                    i, 
+                f.write("({}, {}, {}):{}\n".format(
+                    i,
                     query_ids[i],
                     average_precision_score(y_true, y_score),
                     ','.join(map(lambda x: '({}, {})'.format(x[0], x[1]), 
