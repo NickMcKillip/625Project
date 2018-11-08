@@ -122,15 +122,11 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
     # here we are comparing, for each query image, how many of the predictions
     # match the 
     matches = (gallery_ids[indices] == query_ids[:, np.newaxis])
-    with open("predictions.txt", "a") as f:
-        for i in range(20):
-            f.write("{}: {}".format(i, ','.join(map(str, gallery_ids[indices][i][:10]))))
-        f.write("----------------------------")
-    # Compute AP for each query
+    # Compute AP for each query image
     aps = []
     for i in range(m):
         # Filter out the same id and same camera
-        # first find the entries 
+        # first find the entries which are not the same id or not the same camera
         valid = ((gallery_ids[indices[i]] != query_ids[i]) |
                  (gallery_cams[indices[i]] != query_cams[i]))
         # drop the entries in matches[i] which are the same id and same camera
@@ -143,6 +139,15 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
         if not np.any(y_true):
             continue
         aps.append(average_precision_score(y_true, y_score))
+        if i < 20: # lets just look at the first 20 query pictures
+            with open("predictions.txt", "a") as f:
+                # for the query picture, lets look at the id's we predicted for it!
+                f.write("({}, {}):{}\n".format(
+                    i,
+                    average_precision_score(y_true, y_score),
+                    ','.join(map(str, gallery_ids[indices][i][:10]))))
     if len(aps) == 0:
         raise RuntimeError("No valid query")
+    with open("predictions.txt", "a") as f:
+        f.write("-------------------------\n")
     return np.mean(aps)
