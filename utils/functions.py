@@ -143,9 +143,12 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
             with open("predictions.txt", "a") as f:
                 # for the query picture, lets look at the id's we predicted for it!
                 f.write("({}, {}):{}\n".format(
-                    i,
+                    i, 
+                    query_ids[i],
                     average_precision_score(y_true, y_score),
-                    ','.join(map(str, gallery_ids[indices][i][:10]))))
+                    ','.join(map(lambda x: '({}, {})'.format(x[0], x[1]), 
+                        zip([indices][i][:10],
+                            gallery_ids[indices][i][:10])))))
     if len(aps) == 0:
         raise RuntimeError("No valid query")
     with open("predictions.txt", "a") as f:
