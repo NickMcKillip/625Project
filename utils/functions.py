@@ -154,7 +154,7 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
                     i,
                     query_ids[i],
                     average_precision_score(y_true, y_score),
-                    ','.join(map(lambda x: '{}, {}-'.format(x[0], x[1]), 
+                    '-'.join(map(lambda x: '{}, {}'.format(x[0], x[1]),
                         zip(indices[i][:10],
                             gallery_ids[indices][i][:10])))))
     if len(aps) == 0:
