@@ -120,18 +120,20 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
     # query_ids[:, np.newaxis]) makes query_ids from shape (m,) -> (m, 1)
     # this is same as doing query_ids.reshape(m,1)
     # here we are comparing, for each query image, how many of the predictions
-    # match the 
+    # match the actual id for tht query image.
     matches = (gallery_ids[indices] == query_ids[:, np.newaxis])
     # Compute AP for each query image
     aps = []
     # write out our predictions for the first 20 query images to a file
-    i = 0
-    while os.path.exists("./predictions/predictions_epoch{}.txt"):
-        i += 1
-    with open("./predictions/predictions_epoch{}.txt".format(i), "w") as f:
-        f.write("query_idx, query_id, avg_precision, idx_0, id_0, idx_1, id_1, "
-                "idx_2, id_2, idx_3, id_3, idx_4, id_4, idx_5, id_5, idx_6, "
-                "id_6, idx_7, id_7, idx_8, id_8, idx_9, id_9")
+    if not os.path.exists("./predictions"):
+        os.makedirs("./predictions")
+    epoch_num = 0
+    while os.path.exists("./predictions/epoch{}.txt".format(epoch_num)):
+        epoch_num += 1
+    # with open("./predictions/predictions_epoch{}.txt".format(epoch_num), "w") as f:
+    #     f.write("query_idx, query_id, avg_precision, idx_0, id_0, idx_1, id_1, "
+    #             "idx_2, id_2, idx_3, id_3, idx_4, id_4, idx_5, id_5, idx_6, "
+    #             "id_6, idx_7, id_7, idx_8, id_8, idx_9, id_9")
     for i in range(m):
         # Filter out the same id and same camera
         # first find the entries which are not the same id or not the same camera
@@ -148,15 +150,17 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
             continue
         aps.append(average_precision_score(y_true, y_score))
         if i < 20: # lets just look at the first 20 query pictures
-            with open("./predictions/predictions_epoch{}.txt".format(i), "a") as f:
+            with open("./predictions/epoch{}.txt".format(epoch_num), "a") as f:
                 # for the query picture, lets look at the id's we predicted for it!
                 f.write("{}, {}, {}:{}\n".format(
                     i,
                     query_ids[i],
                     average_precision_score(y_true, y_score),
-                    '-'.join(map(lambda x: '{}, {}'.format(x[0], x[1]),
-                        zip(indices[i][:10],
-                            gallery_ids[indices][i][:10])))))
+                    '-'.join(map(lambda x: '{}, {}'.format(*x),
+                        zip(indices[i, valid][:10],
+                            gallery_ids[indices][i, valid][:10])))))
+    with open("./predictions/epoch{}.txt".format(epoch_num), "a") as f:
+        f.write(str(np.mean(aps)))
     if len(aps) == 0:
         raise RuntimeError("No valid query")
     return np.mean(aps)
