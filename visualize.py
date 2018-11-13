@@ -27,8 +27,12 @@ def print_grid(filepaths, avg_precisions, prediction_details, epoch, mAP):
             if j == 0:
                 # if j == 0, we are looking at the query photo
                 # draw the average precision on the picture
+                ap = avg_precisions[i]
                 draw.text((0, 0), str(
-                    round(avg_precisions[i], 3)), (255, 255, 255), font=font_small)
+                    round(ap, 3)), (255, 255, 255), font=font_small)
+                # outline the query picture in a scale from red for poor average precision to blue for excelent
+                img = ImageOps.expand(img, border=6,
+                                          fill=(int((1 - ap) * 255), 0, int(ap * 255)))
             else:
                 # else, we are looking at one of the gallery photos...
                 _, score, ismatch = prediction_details[i][j-1]
@@ -81,7 +85,7 @@ def build_image(filepath):
     filepaths = []
     prediction_details = []
     avg_precisions = []
-    query_predictions, mAP = np.array(lines), lines[-1]
+    query_predictions, mAP = np.array(lines)[:-1], lines[-1]
     for query in query_predictions:
         query_idx, _, avg_precision, predictions = parse_line(query)
         query_path = loader.queryset.imgs[query_idx]
