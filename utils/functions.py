@@ -80,7 +80,7 @@ def cmc(distmat, query_ids=None, gallery_ids=None,
     return ret.cumsum() / num_valid_queries
 
 
-def mean_ap(distmat, query_ids=None, gallery_ids=None,
+def mean_ap(distmat, epoch, query_ids=None, gallery_ids=None,
             query_cams=None, gallery_cams=None):
     m, n = distmat.shape
     # Fill up default values
@@ -128,9 +128,6 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
     # write out our predictions for the first 20 query images to a file
     if not os.path.exists("./predictions"):
         os.makedirs("./predictions")
-    epoch_num = 0
-    while os.path.exists("./predictions/epoch{}.txt".format(epoch_num)):
-        epoch_num += 1
     last_id = 0
     # ----------------------------------------------------
     for i in range(m):
@@ -150,7 +147,7 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
         aps.append(average_precision_score(y_true, y_score))
         # ------------ BELOW CODE FOR CSCE 625 ---------------
         if query_ids[i] != last_id: # lets just look at different id's
-            with open("./predictions/epoch{}.txt".format(epoch_num), "a") as f:
+            with open("./predictions/epoch{}.txt".format(epoch), "a") as f:
                 # for the query picture, lets look at the id's we predicted for it!
                 f.write("{}, {}, {}:{}\n".format(
                     i, query_ids[i], average_precision_score(y_true, y_score),
@@ -160,7 +157,7 @@ def mean_ap(distmat, query_ids=None, gallery_ids=None,
                             y_score[:10],
                             y_true[:10].astype(int))))))
             last_id = query_ids[i]
-    with open("./predictions/epoch{}.txt".format(epoch_num), "a") as f:
+    with open("./predictions/epoch{}.txt".format(epoch), "a") as f:
         f.write(str(np.mean(aps)))
     # ----------------------------------------------------
     if len(aps) == 0:
