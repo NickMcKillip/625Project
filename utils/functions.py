@@ -125,10 +125,11 @@ def mean_ap(distmat, epoch, query_ids=None, gallery_ids=None,
     # Compute AP for each query image
     aps = []
     # ------------ BELOW CODE FOR CSCE 625 ---------------
-    # write out our predictions for the first 20 query images to a file
+    # write out our predictions for unique id query images to a file
     if not os.path.exists("./predictions"):
         os.makedirs("./predictions")
-    last_id = 0
+    # keep track of last id bcs we only want to output to the file one entry for each unique id
+    last_id = -1
     # ----------------------------------------------------
     for i in range(m):
         # Filter out the same id and same camera

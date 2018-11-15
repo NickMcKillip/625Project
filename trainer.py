@@ -52,12 +52,9 @@ class Trainer():
             # 8: 32 X 14718 (used for backprop)
             outputs = self.model(inputs)
             # labels is a vector<int> of indices (shape 32 (batchsize) ?) of the images
-            # how do we get loss between outputs and labels? since the identities of the 
-            # images don't have a "ground truth" encoding in the first place...
-            # or maybe we do get encoding of a known identity and then compare
             # what the output encoding for an image was and then tell the loss what the
             # output encoding should have been, given the labels. If the loss knows the 
-            # ground truth encoding of the identity, then it could compare...
+            # ground truth encoding of the identity, then it can compare.
             loss = self.loss(outputs, labels)
             loss.backward()
             self.optimizer.step()
@@ -86,7 +83,6 @@ class Trainer():
         gf = self.extract_feature(self.test_loader).numpy()
 
         if self.args.re_rank:
-            # I don't get whats going on here -- see reranking
             q_g_dist = np.dot(qf, np.transpose(gf))
             q_q_dist = np.dot(qf, np.transpose(qf))
             g_g_dist = np.dot(gf, np.transpose(gf))
