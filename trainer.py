@@ -50,8 +50,6 @@ class Trainer():
             # 1: 32 X 2048 (concatonated features) (used for testing)
             # 4: 32 X 256 (used for backprop)
             # 8: 32 X 14718 (used for backprop)
-            # this is corresponding to the sub-model outputs I know
-            # but how do the dimensions make sense???
             outputs = self.model(inputs)
             # labels is a vector<int> of indices (shape 32 (batchsize) ?) of the images
             # how do we get loss between outputs and labels? since the identities of the 
@@ -75,11 +73,8 @@ class Trainer():
     def test(self):
         epoch = self.scheduler.last_epoch + 1
         self.ckpt.write_log('\n[INFO] Test:')
-        # "switch modes" for the model to eval mode
-        # does this mean don't save data for backprop???
         self.model.eval()
 
-        # this will be for logging the reranking???
         self.ckpt.add_log(torch.zeros(1, 5))
         # get the encodings/features for the query dataset
         # the result size for example in the market query dataset
@@ -104,7 +99,6 @@ class Trainer():
             # distance is calculated here using euclidian distances between the cross product
             # of each query image with each gallery image
             dist = cdist(qf, gf)
-        # what is r??? result? reranking? it is shape of 100 floats [0, 1] in the market dataset
         r = cmc(dist, self.queryset.ids, self.testset.ids, self.queryset.cameras, self.testset.cameras,
                 separate_camera_set=False,
                 single_gallery_shot=False,
@@ -159,7 +153,6 @@ class Trainer():
             ff = torch.FloatTensor(inputs.size(0), 2048).zero_()
             for i in range(2):
                 if i==1:
-                    # why ???
                     inputs = self.fliphor(inputs)
                 input_img = inputs.to(self.device)
                 outputs = self.model(input_img)
