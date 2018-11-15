@@ -109,14 +109,6 @@ def mean_ap(distmat, epoch, query_ids=None, gallery_ids=None,
     # the question then is, what id does test image 6192 have?
     # to get that, we must index our gallery_ids at indices[0][0]
     # and we find that it is id 1.
-    gallery_ids[indices][0][0]
-    # for query image 0, what are the top 10 ids we think it could be?
-    # looks like (for market), image 0 matches to id 1 pretty consistently
-    # from the test dataset
-    gallery_ids[indices][0][:10]
-    # what if we wanted to know the full list of sorted prediction for which 
-    # test-image id are predicted for each query image, not just query image 0?
-    gallery_ids[indices]
     # query_ids[:, np.newaxis]) makes query_ids from shape (m,) -> (m, 1)
     # this is same as doing query_ids.reshape(m,1)
     # here we are comparing, for each query image, how many of the predictions
