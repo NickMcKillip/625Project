@@ -43,7 +43,7 @@ Download model file in [here](https://pan.baidu.com/s/1DbZsT16yIITTkmjRW1ifWQ)
 Figure . Multiple Granularity Network architecture.
 
 ## The architecture with a little more details
-![More Detailed MGN](https://github.tamu.edu/josiahcoad/PersonReidentify/blob/Josiah/architecture.png)
+![More Detailed MGN](https://github.tamu.edu/josiahcoad/PersonReidentify/blob/master/architecture.png)
 
 
 ```text
