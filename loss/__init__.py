@@ -26,6 +26,15 @@ class Loss(nn.modules.loss._Loss):
                 loss_function = nn.CrossEntropyLoss()
             elif loss_type == 'Triplet':
                 loss_function = TripletLoss(args.margin)
+            # ------------ BELOW CODE FOR CSCE 625 ---------------
+            # Allow a mixed loss function for the training...
+            # Several ways to do this... either switch out loss functions 
+            # in rotations for a fixed number of epochs each
+            # or divide total epochs into sections of "num_losses"
+            # and train #epochs / #losses on each loss.
+            # elif loss_type == 'Mixed':
+            #     loss_function = MixedLoss(args.margin)
+            # ----------------------------------------------------
             # CSCE 625: Aligned loss evaluation for aligned features
             elif loss_type == 'AlignedTriplet':
                 tri_loss = TripletLoss2(margin=0.3)
