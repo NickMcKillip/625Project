@@ -33,6 +33,10 @@ class Trainer():
     def train(self):
         self.scheduler.step()
         self.loss.step()
+        # ----------------------------------------------------
+        # CSCE 625: Code to switch out the loss function after half way through epochs
+        if self.scheduler.last_epoch == round(self.args.epochs / 2):
+            self.loss.swap_mixed_loss()
         epoch = self.scheduler.last_epoch + 1
         lr = self.scheduler.get_lr()[0]
         if lr != self.lr:
@@ -51,6 +55,7 @@ class Trainer():
             # 4: 32 X 256 (used for backprop)
             # 8: 32 X 14718 (used for backprop)
             outputs = self.model(inputs)
+            # switch which loss we are using half way through training (only effective if using mixed loss)
             # labels is a vector<int> of indices (shape 32 (batchsize) ?) of the images
             # what the output encoding for an image was and then tell the loss what the
             # output encoding should have been, given the labels. If the loss knows the 

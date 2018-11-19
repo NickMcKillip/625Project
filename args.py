@@ -11,13 +11,14 @@ class Args():
         self.data_train2 = 'DukeMTMC'
         self.data_test2 = 'DukeMTMC'
         self.reset = False
-        self.epochs = 400
-        self.test_every = 1
+        self.epochs = 160
+        self.test_every = 40
         self.batchid = 8
-        self.batchtest = 16
+        self.batchimage = 4
+        self.batchtest = 32
         self.test_only = False
         self.model = 'MGN'
-        self.loss = '1*CrossEntropy+1*Triplet'
+        self.loss = '1*CrossEntropy+2*Mixed'
         self.act = 'relu'
         self.pool = 'avg'
         self.feats = 256
@@ -43,19 +44,19 @@ class Args():
         self.probability = 0.5
         self.savedir = 'saved_models'
         self.outdir = 'out'
-        self.save = 'spn'
+        self.save = 'MGN_adam'
         self.save_models = True
         self.pre_train = '' #model_best.pt
         self.load = ''
         self.decay_type = 'step'
         self.extract_features_only = False
-        self.batchimage = 4
         self.cpu = True
         self.use_alighed_branch = False
         self.aligned_parts = 3
         self.use_aligned_branch = False
         self.resume = 0
         self.verbose = True
+        self.optimizer = 'ADAM'
 
 
 args = Args()
