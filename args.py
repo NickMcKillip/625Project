@@ -50,8 +50,6 @@ class Args():
         self.load = ''
         self.decay_type = 'step'
         self.extract_features_only = False
-        self.cpu = True
-        self.use_alighed_branch = False
         self.aligned_parts = 3
         self.use_aligned_branch = False
         self.resume = 0
