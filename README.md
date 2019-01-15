@@ -1,0 +1,2 @@
+See
+Improvements_Upon_the_Multiple_Granularities_Networkfor_Person_Reid.pdf
